@@ -1,0 +1,50 @@
+name: CI for FastAPI
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+
+    steps:
+      # Step 1: Check out the code
+      - name: Check out code
+        uses: actions/checkout@v2
+
+      # Step 2: Set up Python 3.9 (FastAPI requires Python 3.6+)
+      - name: Set up Python 3.9
+        uses: actions/setup-python@v2
+        with:
+          python-version: 3.9
+
+      # Step 3: Install dependencies from requirements.txt
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+
+      # Step 4: Run any tests (you can add more tests here)
+    #   - name: Run tests
+    #     run: |
+    #       pytest  # Assuming you will add tests, otherwise can be skipped
+
+      # Step 5: Set up Docker Buildx (to build Docker images)
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v1
+
+      # Step 6: Build the Docker image for FastAPI app
+      - name: Build Docker image
+        run: |
+          docker build -t fastapi-app .
+
+      # Step 7: Run the Docker container
+      - name: Run FastAPI app in Docker
+        run: |
+          docker run -d -p 8000:8000 fastapi-app
+          docker ps
